@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced State Management Techniques in Flutter - Zohaib Hassan's Blog</title>
+<meta name="description" content="A comprehensive guide to implementing efficient state management solutions in Flutter applications using Bloc, Provider, and Riverpod.">
+<meta property="og:title" content="Advanced State Management Techniques in Flutter - Zohaib Hassan's Blog">
+<meta property="og:description" content="A comprehensive guide to implementing efficient state management solutions in Flutter applications using Bloc, Provider, and Riverpod.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://zohaibhassan.dev/blog/advanced-state-management-flutter">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: '#02569B',
+        secondary: '#13B9FD'
+      },
+      borderRadius: {
+        'none': '0px',
+        'sm': '4px',
+        DEFAULT: '8px',
+        'md': '12px',
+        'lg': '16px',
+        'xl': '20px',
+        '2xl': '24px',
+        '3xl': '32px',
+        'full': '9999px',
+        'button': '8px'
+      }
+    }
+  }
+}
+</script>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+  font-family: 'Inter', sans-serif;
+}
+.prose {
+  max-width: 65ch;
+  color: #374151;
+}
+.dark .prose {
+  color: #E5E7EB;
+}
+.prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  color: #374151;
+  line-height: 1.75;
+}
+.dark .prose p {
+  color: #E5E7EB;
+}
+.prose h2 {
+  margin-top: 2.5em;
+  margin-bottom: 1.25em;
+  padding-bottom: 0.5em;
+  font-size: 1.5em;
+  font-weight: 700;
+  color: #1F2937;
+  border-bottom: 2px solid #E5E7EB;
+}
+.dark .prose h2 {
+  color: #F3F4F6;
+  border-bottom-color: #374151;
+}
+.prose h3 {
+  margin-top: 2em;
+  margin-bottom: 1em;
+  font-size: 1.25em;
+  font-weight: 600;
+  color: #1F2937;
+  padding-left: 0.5em;
+  border-left: 3px solid #02569B;
+}
+.dark .prose h3 {
+  color: #F3F4F6;
+  border-left-color: #13B9FD;
+}
+.prose ul {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  list-style-type: disc;
+  padding-left: 1.625em;
+  background-color: #F9FAFB;
+  padding: 1.25em 1.625em;
+  border-radius: 0.5em;
+  border-left: 3px solid #02569B;
+}
+.dark .prose ul {
+  background-color: #1F2937;
+  border-left-color: #13B9FD;
+}
+.prose ol {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  list-style-type: decimal;
+  padding-left: 1.625em;
+  background-color: #F9FAFB;
+  padding: 1.25em 1.625em;
+  border-radius: 0.5em;
+  border-left: 3px solid #02569B;
+}
+.dark .prose ol {
+  background-color: #1F2937;
+  border-left-color: #13B9FD;
+}
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  color: #374151;
+}
+.dark .prose li {
+  color: #E5E7EB;
+}
+.prose blockquote {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  padding: 1.25em 1.5em;
+  border-left: 4px solid #02569B;
+  background-color: #F0F9FF;
+  border-radius: 0.5em;
+  font-style: italic;
+  color: #1E40AF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.dark .prose blockquote {
+  border-left-color: #13B9FD;
+  background-color: #1E3A5F;
+  color: #93C5FD;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.prose code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  background-color: #F3F4F6;
+  padding: 0.25em 0.5em;
+  border-radius: 0.375em;
+  font-size: 0.875em;
+  color: #DC2626;
+  border: 1px solid #E5E7EB;
+  font-weight: 500;
+}
+.dark .prose code {
+  background-color: #374151;
+  color: #FCA5A5;
+  border-color: #4B5563;
+}
+.prose pre {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  background-color: #1F2937;
+  color: #F3F4F6;
+  padding: 1.5em;
+  border-radius: 0.75em;
+  overflow-x: auto;
+  border: 1px solid #374151;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+.prose pre::before {
+  content: 'Code';
+  position: absolute;
+  top: 0.75em;
+  right: 1em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dark .prose pre {
+  background-color: #0F172A;
+  color: #F3F4F6;
+  border-color: #1E293B;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+.dark .prose pre::before {
+  color: #64748B;
+}
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: 0.875em;
+  border: none;
+}
+.prose img {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
+  border-radius: 0.75em;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.dark .prose img {
+  border-color: #374151;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+.prose a {
+  color: #02569B;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.dark .prose a {
+  color: #13B9FD;
+}
+.prose a:hover {
+  text-decoration-thickness: 2px;
+}
+.prose table {
+  width: 100%;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border-collapse: collapse;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.5em;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.dark .prose table {
+  border-color: #374151;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.prose table th {
+  background-color: #F9FAFB;
+  padding: 1em;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #E5E7EB;
+  color: #1F2937;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dark .prose table th {
+  background-color: #1F2937;
+  border-bottom-color: #374151;
+  color: #F3F4F6;
+}
+.prose table td {
+  padding: 1em;
+  border-bottom: 1px solid #E5E7EB;
+  color: #374151;
+  background-color: #FFFFFF;
+}
+.dark .prose table td {
+  border-bottom-color: #374151;
+  color: #E5E7EB;
+  background-color: #111827;
+}
+.prose table tr:last-child td {
+  border-bottom: none;
+}
+.prose hr {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+}
+.dark .prose hr {
+  border-top-color: #4B5563;
+}
+.table-of-contents {
+  background-color: #FFFFFF;
+  border-radius: 0.75em;
+  padding: 1.5em;
+  border: 1px solid #D1D5DB;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+.dark .table-of-contents {
+  background-color: #1F2937;
+  border-color: #374151;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+}
+.table-of-contents h3 {
+  margin-top: 0;
+  margin-bottom: 1em;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1F2937;
+  padding-bottom: 0.75em;
+  border-bottom: 2px solid #D1D5DB;
+}
+.dark .table-of-contents h3 {
+  color: #F3F4F6;
+  border-bottom-color: #374151;
+}
+.table-of-contents ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+.table-of-contents li {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+  padding-left: 0.75em;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+.table-of-contents li:hover {
+  border-left-color: #02569B;
+  padding-left: 1em;
+}
+.dark .table-of-contents li:hover {
+  border-left-color: #13B9FD;
+}
+.table-of-contents a {
+  text-decoration: none;
+  color: #374151;
+  font-size: 0.875rem;
+  display: block;
+  transition: color 0.2s ease;
+}
+.dark .table-of-contents a {
+  color: #D1D5DB;
+}
+.table-of-contents a:hover {
+  color: #02569B;
+  text-decoration: none;
+}
+.dark .table-of-contents a:hover {
+  color: #13B9FD;
+}
+.sticky-toc {
+  position: sticky;
+  top: 2rem;
+}
+.sticky-toc > div {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #D1D5DB !important;
+}
+.dark .sticky-toc > div {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+  border-color: #374151 !important;
+}
+.sticky-toc ul li {
+  padding-left: 0.75em;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.sticky-toc ul li:hover {
+  border-left-color: #02569B;
+  padding-left: 1em;
+}
+.dark .sticky-toc ul li:hover {
+  border-left-color: #13B9FD;
+}
+
+/* Hide Table of Contents on Mobile */
+@media (max-width: 1023px) {
+  .sticky-toc {
+    display: none !important;
+  }
+  .lg\:w-1\/4 {
+    display: none !important;
+  }
+  .lg\:w-3\/4 {
+    width: 100% !important;
+  }
+}
+
+/* Footer Section */
+.footer-section {
+  background: linear-gradient(180deg, #020617 0%, #0F172A 100%);
+  padding: 4rem 0 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.footer-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #02569B, #13B9FD, transparent);
+  opacity: 0.5;
+}
+.footer-brand {
+  display: inline-flex;
+  flex-direction: column;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+.footer-brand:hover {
+  transform: translateY(-2px);
+}
+.footer-description {
+  color: #9ca3af;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  max-width: 450px;
+  margin-top: 1rem;
+}
+.footer-social-link {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.875rem;
+  color: #9ca3af;
+  font-size: 1.25rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.footer-social-link:hover {
+  background: linear-gradient(120deg, #02569B, #13B9FD);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 8px 24px rgba(2, 86, 155, 0.5);
+}
+.footer-social-link img {
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+  filter: brightness(0.8);
+  transition: filter 0.3s ease;
+}
+.footer-social-link:hover img {
+  filter: brightness(1);
+}
+/* Upwork logo - make it white in footer */
+.footer-social-link img[src="upwork-icon.png"] {
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+.footer-social-link:hover img[src="upwork-icon.png"] {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+.dark .footer-social-link img[src="upwork-icon.png"] {
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+.dark .footer-social-link:hover img[src="upwork-icon.png"] {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+/* Tooltip styles for social links */
+.footer-social-link {
+  position: relative;
+}
+.footer-social-link::after {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  padding: 0.5rem 0.75rem;
+  background: rgba(15, 23, 42, 0.95);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.footer-social-link::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-2px);
+  border: 5px solid transparent;
+  border-top-color: rgba(15, 23, 42, 0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1001;
+}
+.footer-social-link:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-12px);
+}
+.footer-social-link:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+.dark .footer-social-link::after {
+  background: rgba(255, 255, 255, 0.95);
+  color: #111827;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.dark .footer-social-link::before {
+  border-top-color: rgba(255, 255, 255, 0.95);
+}
+.footer-heading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.025em;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+.footer-heading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #02569B, #13B9FD);
+  border-radius: 2px;
+}
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.footer-link {
+  color: #9ca3af;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-block;
+  position: relative;
+  padding-left: 0;
+  padding: 0.25rem 0;
+}
+.footer-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #02569B, #13B9FD);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+.footer-link:hover {
+  color: #ffffff;
+  padding-left: 0.75rem;
+  transform: translateX(4px);
+}
+.footer-link:hover::before {
+  width: 0.5rem;
+}
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 2.5rem;
+  margin-top: 3rem;
+  position: relative;
+}
+.footer-bottom::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #02569B, #13B9FD, transparent);
+  opacity: 0.5;
+}
+.footer-bottom-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.footer-copyright {
+  color: #9ca3af;
+  font-size: 0.9375rem;
+  margin: 0;
+  letter-spacing: 0.025em;
+  position: relative;
+  padding: 1rem 0;
+}
+.footer-copyright::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #02569B, #13B9FD, transparent);
+  opacity: 0.6;
+}
+@media (max-width: 768px) {
+  .footer-section {
+    padding: 2.5rem 0 1.5rem;
+  }
+  .footer-description {
+    font-size: 0.875rem;
+  }
+  .footer-social-link {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+  .footer-heading {
+    font-size: 0.9375rem;
+    margin-bottom: 1rem;
+  }
+  .footer-link {
+    font-size: 0.875rem;
+  }
+}
+</style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-300">
+<main class="container mx-auto px-6 py-12">
+  <div class="flex flex-col lg:flex-row gap-12">
+    <div class="lg:w-3/4">
+      <div class="mb-8">
+        <a href="index.html#blog" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-secondary mb-6 transition-colors">
+          <i class="ri-arrow-left-line mr-2"></i>
+          <span>Back</span>
+        </a>
+        <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full">Flutter</span>
+          <span class="flex items-center">
+            <i class="ri-time-line mr-1"></i>
+            5 min read
+          </span>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold font-poppins mb-6 dark:text-gray-100">Advanced State Management Techniques in Flutter</h1>
+        <div class="flex items-center space-x-4 mb-8">
+          <img src="profile.jpg" alt="Zohaib Hassan" class="w-12 h-12 rounded-full object-cover object-top">
+          <div>
+            <p class="font-medium dark:text-gray-100">Zohaib Hassan</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Flutter Developer</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="rounded-lg overflow-hidden mb-10">
+        <img src="https://readdy.ai/api/search-image?query=modern%2520software%2520development%2520workspace%2520with%2520multiple%2520monitors%2520showing%2520Flutter%2520code%2520and%2520app%2520UI%252C%2520clean%2520organized%2520desk%2520with%2520developer%2520tools%252C%2520professional%2520lighting%252C%2520high%2520quality%2520photograph%2520of%2520programming%2520environment&width=1200&height=600&seq=17&orientation=landscape" alt="Flutter State Management" class="w-full h-auto object-cover object-top">
+      </div>
+      
+      <article class="prose mx-auto">
+        <p>State management is one of the most critical aspects of Flutter application development. As your app grows in complexity, managing state efficiently becomes increasingly important for maintaining performance and code organization. In this comprehensive guide, we'll explore advanced state management techniques in Flutter, focusing on the three most popular solutions: Bloc, Provider, and Riverpod.</p>
+        
+        <h2 id="understanding-state">Understanding State in Flutter Applications</h2>
+        <p>Before diving into specific state management solutions, it's essential to understand what "state" means in the context of Flutter applications. In simple terms, state is any data that can change during the lifetime of your application. This includes:</p>
+        <ul>
+          <li>User inputs (text fields, toggles, selections)</li>
+          <li>API responses and network data</li>
+          <li>Navigation state</li>
+          <li>Authentication status</li>
+          <li>UI state (loading indicators, error messages)</li>
+        </ul>
+        
+        <p>Flutter offers several ways to manage state, from simple solutions like <code>setState()</code> for local widget state to more comprehensive approaches for application-wide state management. The choice of state management solution depends on your application's complexity and specific requirements.</p>
+        
+        <h2 id="bloc-pattern">The Bloc Pattern: Reactive State Management</h2>
+        <p>Business Logic Component (Bloc) is a state management pattern that helps separate business logic from the UI layer. It leverages Dart's streams to provide a reactive approach to state management.</p>
+        
+        <h3>Key Concepts in Bloc</h3>
+        <ul>
+          <li><strong>Events:</strong> Input events that trigger state changes</li>
+          <li><strong>States:</strong> Output states that represent the UI</li>
+          <li><strong>Bloc:</strong> The component that converts events to states</li>
+        </ul>
+        
+        <p>The Bloc pattern follows a unidirectional data flow:</p>
+        <ol>
+          <li>UI triggers events</li>
+          <li>Bloc processes events</li>
+          <li>Bloc emits new states</li>
+          <li>UI rebuilds based on new states</li>
+        </ol>
+        
+        <h3>Implementing Bloc</h3>
+        <p>Here's a simplified example of implementing Bloc for a counter application:</p>
+        
+        <pre><code>// Counter Event
+abstract class CounterEvent {}
+class IncrementEvent extends CounterEvent {}
+class DecrementEvent extends CounterEvent {}
+
+// Counter State
+class CounterState {
+  final int count;
+  CounterState(this.count);
+}
+
+// Counter Bloc
+class CounterBloc extends Bloc<CounterEvent, CounterState> {
+  CounterBloc() : super(CounterState(0)) {
+    on<IncrementEvent>((event, emit) {
+      emit(CounterState(state.count + 1));
+    });
+    
+    on<DecrementEvent>((event, emit) {
+      emit(CounterState(state.count - 1));
+    });
+  }
+}</code></pre>
+        
+        <p>To use this Bloc in your UI:</p>
+        
+        <pre><code>BlocProvider(
+  create: (context) => CounterBloc(),
+  child: BlocBuilder<CounterBloc, CounterState>(
+    builder: (context, state) {
+      return Text('Count: ${state.count}');
+    },
+  ),
+)</code></pre>
+        
+        <h3>Advantages of Bloc</h3>
+        <ul>
+          <li>Clear separation of concerns</li>
+          <li>Highly testable business logic</li>
+          <li>Reactive programming model</li>
+          <li>Great for complex applications</li>
+        </ul>
+        
+        <h2 id="provider">Provider: Simplified Dependency Injection</h2>
+        <p>Provider is a wrapper around InheritedWidget to make them easier to use and more reusable. It's a simpler alternative to Bloc that still offers powerful state management capabilities.</p>
+        
+        <h3>Key Concepts in Provider</h3>
+        <ul>
+          <li><strong>ChangeNotifier:</strong> A class that provides change notifications to listeners</li>
+          <li><strong>ChangeNotifierProvider:</strong> A provider that creates and disposes a ChangeNotifier</li>
+          <li><strong>Consumer:</strong> A widget that listens to changes in a provider</li>
+        </ul>
+        
+        <h3>Implementing Provider</h3>
+        <p>Here's how you can implement a counter using Provider:</p>
+        
+        <pre><code>// Counter Model
+class CounterModel extends ChangeNotifier {
+  int _count = 0;
+  int get count => _count;
+  
+  void increment() {
+    _count++;
+    notifyListeners();
+  }
+  
+  void decrement() {
+    _count--;
+    notifyListeners();
+  }
+}
+
+// In your widget tree
+ChangeNotifierProvider(
+  create: (context) => CounterModel(),
+  child: Consumer<CounterModel>(
+    builder: (context, model, child) {
+      return Text('Count: ${model.count}');
+    },
+  ),
+)</code></pre>
+        
+        <h3>Advantages of Provider</h3>
+        <ul>
+          <li>Simple and intuitive API</li>
+          <li>Less boilerplate compared to Bloc</li>
+          <li>Good for small to medium-sized applications</li>
+          <li>Easy integration with Flutter's widget system</li>
+        </ul>
+        
+        <h2 id="riverpod">Riverpod: The Evolution of Provider</h2>
+        <p>Riverpod, created by the same author as Provider, addresses some of the limitations of Provider while maintaining its simplicity. It's often described as "Provider, but with compile-time safety."</p>
+        
+        <h3>Key Concepts in Riverpod</h3>
+        <ul>
+          <li><strong>Provider:</strong> A container for a piece of state</li>
+          <li><strong>ConsumerWidget:</strong> A widget that can read providers</li>
+          <li><strong>StateNotifier:</strong> A class that holds and mutates state</li>
+        </ul>
+        
+        <h3>Implementing Riverpod</h3>
+        <p>Here's how to implement a counter using Riverpod:</p>
+        
+        <pre><code>// Counter State
+class CounterState {
+  final int count;
+  CounterState(this.count);
+}
+
+// Counter Notifier
+class CounterNotifier extends StateNotifier<CounterState> {
+  CounterNotifier() : super(CounterState(0));
+  
+  void increment() {
+    state = CounterState(state.count + 1);
+  }
+  
+  void decrement() {
+    state = CounterState(state.count - 1);
+  }
+}
+
+// Provider definition
+final counterProvider = StateNotifierProvider<CounterNotifier, CounterState>((ref) {
+  return CounterNotifier();
+});
+
+// In your widget
+class CounterWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(counterProvider);
+    return Text('Count: ${state.count}');
+  }
+}</code></pre>
+        
+        <h3>Advantages of Riverpod</h3>
+        <ul>
+          <li>Compile-time safety</li>
+          <li>No context required to access providers</li>
+          <li>Providers can be overridden for testing</li>
+          <li>Better handling of async data</li>
+        </ul>
+        
+        <h2 id="comparison">Comparing State Management Solutions</h2>
+        <p>Each state management solution has its strengths and ideal use cases:</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Bloc</th>
+              <th>Provider</th>
+              <th>Riverpod</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Learning Curve</td>
+              <td>Steep</td>
+              <td>Gentle</td>
+              <td>Moderate</td>
+            </tr>
+            <tr>
+              <td>Boilerplate Code</td>
+              <td>High</td>
+              <td>Low</td>
+              <td>Medium</td>
+            </tr>
+            <tr>
+              <td>Testability</td>
+              <td>Excellent</td>
+              <td>Good</td>
+              <td>Excellent</td>
+            </tr>
+            <tr>
+              <td>Scalability</td>
+              <td>Excellent</td>
+              <td>Good</td>
+              <td>Excellent</td>
+            </tr>
+            <tr>
+              <td>Community Support</td>
+              <td>Strong</td>
+              <td>Very Strong</td>
+              <td>Growing</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <h2 id="best-practices">Best Practices for State Management</h2>
+        <p>Regardless of which state management solution you choose, following these best practices will help you maintain a clean and efficient codebase:</p>
+        
+        <h3>1. Single Source of Truth</h3>
+        <p>Maintain a single source of truth for your state. Avoid duplicating state across different parts of your application, as this can lead to inconsistencies and bugs.</p>
+        
+        <h3>2. Immutable State</h3>
+        <p>Treat state as immutable. Instead of modifying existing state objects, create new ones. This makes your code more predictable and easier to debug.</p>
+        
+        <h3>3. Separation of Concerns</h3>
+        <p>Separate UI logic from business logic. Your widgets should focus on presentation, while your state management solution handles data and business rules.</p>
+        
+        <h3>4. Granular State</h3>
+        <p>Break down your state into smaller, more manageable pieces. This prevents unnecessary rebuilds and improves performance.</p>
+        
+        <h3>5. Consistent Error Handling</h3>
+        <p>Implement a consistent approach to error handling across your application. Your state should include information about loading states and errors.</p>
+        
+        <h2 id="conclusion">Conclusion</h2>
+        <p>Choosing the right state management solution is a crucial decision that will impact your Flutter application's architecture and maintainability. There's no one-size-fits-all solution – the best choice depends on your project's requirements, team expertise, and personal preferences.</p>
+        
+        <p>For smaller applications or when getting started with Flutter, Provider offers a great balance of simplicity and power. As your application grows in complexity, you might consider migrating to Riverpod for additional type safety and flexibility. For large-scale applications with complex business logic, Bloc provides a robust architecture that scales well.</p>
+        
+        <p>Remember that state management is just one aspect of building great Flutter applications. Focus on creating a clean architecture that works for your team and project, and don't be afraid to evolve your approach as your application grows.</p>
+      </article>
+      
+      
+      
+      <div class="border-t border-gray-200 my-12 pt-12">
+        <h3 class="text-2xl font-bold mb-6 dark:text-gray-100">Related Articles</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <article class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div class="relative overflow-hidden h-48">
+              <img src="https://readdy.ai/api/search-image?query=mobile%2520app%2520UI%2520design%2520process%252C%2520showing%2520wireframes%252C%2520color%2520palettes%252C%2520and%2520design%2520tools%252C%2520professional%2520UI%252FUX%2520design%2520workspace%252C%2520modern%2520design%2520environment&width=600&height=400&seq=19&orientation=landscape" alt="Flutter UI Design" class="w-full h-full object-cover object-top transition-transform duration-300 hover:scale-105">
+              <div class="absolute top-4 left-4 bg-purple-500 text-white text-sm px-3 py-1 rounded-full">UI/UX</div>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
+                <span class="flex items-center">
+                  <i class="ri-time-line mr-1"></i>
+                  7 min read
+                </span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 dark:text-gray-100">Creating Stunning UI Animations in Flutter</h3>
+              <p class="text-gray-600 dark:text-gray-300 mb-4">Learn how to implement smooth, performant animations that enhance user experience and add polish to your Flutter applications.</p>
+              <a href="#" class="inline-flex items-center text-primary dark:text-secondary font-medium">
+                <span>Read More</span>
+                <i class="ri-arrow-right-line ml-1"></i>
+              </a>
+            </div>
+          </article>
+          
+          <article class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div class="relative overflow-hidden h-48">
+              <img src="https://readdy.ai/api/search-image?query=mobile%2520app%2520performance%2520optimization%252C%2520showing%2520profiling%2520tools%252C%2520performance%2520metrics%252C%2520and%2520debugging%2520process%252C%2520professional%2520development%2520environment&width=600&height=400&seq=20&orientation=landscape" alt="Flutter Performance" class="w-full h-full object-cover object-top transition-transform duration-300 hover:scale-105">
+              <div class="absolute top-4 left-4 bg-green-500 text-white text-sm px-3 py-1 rounded-full">Performance</div>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
+                <span class="flex items-center">
+                  <i class="ri-time-line mr-1"></i>
+                  6 min read
+                </span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 dark:text-gray-100">Optimizing Flutter App Performance</h3>
+              <p class="text-gray-600 dark:text-gray-300 mb-4">Practical techniques for identifying and resolving performance bottlenecks in Flutter applications to ensure smooth user experiences.</p>
+              <a href="#" class="inline-flex items-center text-primary dark:text-secondary font-medium">
+                <span>Read More</span>
+                <i class="ri-arrow-right-line ml-1"></i>
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+      
+      
+    </div>
+    
+    <div class="lg:w-1/4">
+      <div class="sticky-toc">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-8">
+          <h3 class="text-lg font-bold mb-4 dark:text-gray-100">Table of Contents</h3>
+          <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+            <li><a href="#understanding-state" class="hover:text-primary dark:hover:text-secondary transition-colors">Understanding State</a></li>
+            <li><a href="#bloc-pattern" class="hover:text-primary dark:hover:text-secondary transition-colors">The Bloc Pattern</a></li>
+            <li><a href="#provider" class="hover:text-primary dark:hover:text-secondary transition-colors">Provider</a></li>
+            <li><a href="#riverpod" class="hover:text-primary dark:hover:text-secondary transition-colors">Riverpod</a></li>
+            <li><a href="#comparison" class="hover:text-primary dark:hover:text-secondary transition-colors">Comparing Solutions</a></li>
+            <li><a href="#best-practices" class="hover:text-primary dark:hover:text-secondary transition-colors">Best Practices</a></li>
+            <li><a href="#conclusion" class="hover:text-primary dark:hover:text-secondary transition-colors">Conclusion</a></li>
+          </ul>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 mb-8" style="box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);">
+          <h3 class="text-lg font-bold mb-4 dark:text-gray-100">Tags</h3>
+          <div class="flex flex-wrap gap-2">
+            <a href="#" class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">Flutter</a>
+            <a href="#" class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-sm rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors">State Management</a>
+            <a href="#" class="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-sm rounded-full hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors">Bloc</a>
+            <a href="#" class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 text-sm rounded-full hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors">Provider</a>
+            <a href="#" class="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-sm rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">Riverpod</a>
+            <a href="#" class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 text-sm rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors">Mobile Development</a>
+          </div>
+        </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer-section">
+<div class="container mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 mb-12">
+<div class="lg:col-span-2">
+<a href="index.html#home" class="footer-brand">
+<div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white shadow-lg shadow-primary/40 mb-4 transform transition-transform hover:scale-105">
+<i class="ri-flutter-fill text-xl"></i>
+</div>
+<div class="flex flex-col leading-tight mb-4">
+<span class="font-poppins text-xl font-semibold tracking-wide text-white uppercase">Zohaib Hassan</span>
+<span class="text-xs font-medium uppercase tracking-[0.18em] text-gray-400 mt-1">Flutter Developer</span>
+</div>
+</a>
+<p class="footer-description text-base">Expert Flutter developer creating beautiful, high-performance mobile applications that deliver exceptional user experiences.</p>
+<div class="flex space-x-4 mt-8">
+<a href="https://www.linkedin.com/in/zohaib-hassan-916428310/" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="LinkedIn - Connect with me on LinkedIn" title="LinkedIn - Connect with me on LinkedIn">
+<i class="ri-linkedin-fill"></i>
+</a>
+<a href="https://www.upwork.com/freelancers/~012e88f2131ae95e90?" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Upwork - Hire me on Upwork" title="Upwork - Hire me on Upwork">
+<img src="upwork-icon.png" alt="Upwork" />
+</a>
+<a href="https://github.com/ZohaibHassan90" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="GitHub - View my code repositories" title="GitHub - View my code repositories">
+<i class="ri-github-fill"></i>
+</a>
+<a href="https://www.instagram.com/_.zohaib_hassan?" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Instagram - Follow me on Instagram" title="Instagram - Follow me on Instagram">
+<i class="ri-instagram-fill"></i>
+</a>
+</div>
+</div>
+<div>
+<h3 class="footer-heading">Quick Links</h3>
+<ul class="footer-links">
+<li><a href="index.html#home" class="footer-link">Home</a></li>
+<li><a href="index.html#about" class="footer-link">About</a></li>
+<li><a href="index.html#projects" class="footer-link">Projects</a></li>
+<li><a href="index.html#skills" class="footer-link">Skills</a></li>
+<li><a href="index.html#experience" class="footer-link">Experience</a></li>
+<li><a href="index.html#blog" class="footer-link">Blog</a></li>
+<li><a href="index.html#contact" class="footer-link">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">
+<div class="footer-bottom-content">
+<p class="footer-copyright">© 2025 Zohaib Hassan. All rights reserved.</p>
+</div>
+</div>
+</div>
+</footer>
+
+
+<script id="sticky-header-script">
+document.addEventListener('DOMContentLoaded', function() {
+  const header = document.querySelector('header');
+  const scrollThreshold = 100;
+  
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > scrollThreshold) {
+      header.classList.add('shadow');
+    } else {
+      header.classList.remove('shadow');
+    }
+  });
+});
+</script>
+
+
+<script id="table-of-contents-script">
+document.addEventListener('DOMContentLoaded', function() {
+  const tocLinks = document.querySelectorAll('.sticky-toc a');
+  
+  tocLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      const targetElement = document.querySelector(targetId);
+      
+      window.scrollTo({
+        top: targetElement.offsetTop - 100,
+        behavior: 'smooth'
+      });
+    });
+  });
+  
+  // Highlight current section in TOC
+  const headings = document.querySelectorAll('h2, h3');
+  const tocItems = document.querySelectorAll('.sticky-toc a');
+  
+  window.addEventListener('scroll', function() {
+    let current = '';
+    
+    headings.forEach(heading => {
+      const sectionTop = heading.offsetTop - 120;
+      
+      if (window.scrollY >= sectionTop) {
+        current = heading.getAttribute('id');
+      }
+    });
+    
+    tocItems.forEach(item => {
+      item.classList.remove('text-primary', 'font-medium');
+      const href = item.getAttribute('href').substring(1);
+      
+      if (href === current) {
+        item.classList.add('text-primary', 'font-medium');
+      }
+    });
+  });
+});
+</script>
+<script id="theme-sync-script">
+// Sync theme with main portfolio page
+document.addEventListener('DOMContentLoaded', function() {
+  const html = document.documentElement;
+  const body = document.body;
+  
+  // Function to apply theme
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      html.classList.add('dark');
+      body.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+      body.classList.remove('dark');
+    }
+  }
+  
+  // Get theme from localStorage (set by main portfolio page)
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  // Apply initial theme
+  if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    applyTheme('dark');
+  } else {
+    applyTheme('light');
+  }
+  
+  // Listen for theme changes from other tabs/windows (if user changes theme on main page)
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'theme') {
+      applyTheme(e.newValue);
+    }
+  });
+  
+  // Also listen for custom storage event (for same-tab updates)
+  window.addEventListener('theme-changed', function(e) {
+    applyTheme(e.detail.theme);
+  });
+});
+</script>
+
+</body>
+</html>

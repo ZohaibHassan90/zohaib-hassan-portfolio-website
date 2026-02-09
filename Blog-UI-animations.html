@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creating Stunning UI Animations in Flutter - Zohaib Hassan's Blog</title>
+<meta name="description" content="A comprehensive guide to implementing efficient state management solutions in Flutter applications using Bloc, Provider, and Riverpod.">
+<meta property="og:title" content="Advanced State Management Techniques in Flutter - Zohaib Hassan's Blog">
+<meta property="og:description" content="A comprehensive guide to implementing efficient state management solutions in Flutter applications using Bloc, Provider, and Riverpod.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://zohaibhassan.dev/blog/advanced-state-management-flutter">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: '#02569B',
+        secondary: '#13B9FD'
+      },
+      borderRadius: {
+        'none': '0px',
+        'sm': '4px',
+        DEFAULT: '8px',
+        'md': '12px',
+        'lg': '16px',
+        'xl': '20px',
+        '2xl': '24px',
+        '3xl': '32px',
+        'full': '9999px',
+        'button': '8px'
+      }
+    }
+  }
+}
+</script>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+  font-family: 'Inter', sans-serif;
+}
+.prose {
+  max-width: 65ch;
+  color: #374151;
+}
+.dark .prose {
+  color: #E5E7EB;
+}
+.prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  color: #374151;
+  line-height: 1.75;
+}
+.dark .prose p {
+  color: #E5E7EB;
+}
+.prose h2 {
+  margin-top: 2.5em;
+  margin-bottom: 1.25em;
+  padding-bottom: 0.5em;
+  font-size: 1.5em;
+  font-weight: 700;
+  color: #1F2937;
+  border-bottom: 2px solid #E5E7EB;
+}
+.dark .prose h2 {
+  color: #F3F4F6;
+  border-bottom-color: #374151;
+}
+.prose h3 {
+  margin-top: 2em;
+  margin-bottom: 1em;
+  font-size: 1.25em;
+  font-weight: 600;
+  color: #1F2937;
+  padding-left: 0.5em;
+  border-left: 3px solid #02569B;
+}
+.dark .prose h3 {
+  color: #F3F4F6;
+  border-left-color: #13B9FD;
+}
+.prose ul {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  list-style-type: disc;
+  padding-left: 1.625em;
+  background-color: #F9FAFB;
+  padding: 1.25em 1.625em;
+  border-radius: 0.5em;
+  border-left: 3px solid #02569B;
+}
+.dark .prose ul {
+  background-color: #1F2937;
+  border-left-color: #13B9FD;
+}
+.prose ol {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  list-style-type: decimal;
+  padding-left: 1.625em;
+  background-color: #F9FAFB;
+  padding: 1.25em 1.625em;
+  border-radius: 0.5em;
+  border-left: 3px solid #02569B;
+}
+.dark .prose ol {
+  background-color: #1F2937;
+  border-left-color: #13B9FD;
+}
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  color: #374151;
+}
+.dark .prose li {
+  color: #E5E7EB;
+}
+.prose blockquote {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  padding: 1.25em 1.5em;
+  border-left: 4px solid #02569B;
+  background-color: #F0F9FF;
+  border-radius: 0.5em;
+  font-style: italic;
+  color: #1E40AF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.dark .prose blockquote {
+  border-left-color: #13B9FD;
+  background-color: #1E3A5F;
+  color: #93C5FD;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.prose code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  background-color: #F3F4F6;
+  padding: 0.25em 0.5em;
+  border-radius: 0.375em;
+  font-size: 0.875em;
+  color: #DC2626;
+  border: 1px solid #E5E7EB;
+  font-weight: 500;
+}
+.dark .prose code {
+  background-color: #374151;
+  color: #FCA5A5;
+  border-color: #4B5563;
+}
+.prose pre {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  background-color: #1F2937;
+  color: #F3F4F6;
+  padding: 1.5em;
+  border-radius: 0.75em;
+  overflow-x: auto;
+  border: 1px solid #374151;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+.prose pre::before {
+  content: 'Code';
+  position: absolute;
+  top: 0.75em;
+  right: 1em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dark .prose pre {
+  background-color: #0F172A;
+  color: #F3F4F6;
+  border-color: #1E293B;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+.dark .prose pre::before {
+  color: #64748B;
+}
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: 0.875em;
+  border: none;
+}
+.prose img {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
+  border-radius: 0.75em;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.dark .prose img {
+  border-color: #374151;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+.prose a {
+  color: #02569B;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.dark .prose a {
+  color: #13B9FD;
+}
+.prose a:hover {
+  text-decoration-thickness: 2px;
+}
+.prose table {
+  width: 100%;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border-collapse: collapse;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.5em;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.dark .prose table {
+  border-color: #374151;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.prose table th {
+  background-color: #F9FAFB;
+  padding: 1em;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #E5E7EB;
+  color: #1F2937;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dark .prose table th {
+  background-color: #1F2937;
+  border-bottom-color: #374151;
+  color: #F3F4F6;
+}
+.prose table td {
+  padding: 1em;
+  border-bottom: 1px solid #E5E7EB;
+  color: #374151;
+  background-color: #FFFFFF;
+}
+.dark .prose table td {
+  border-bottom-color: #374151;
+  color: #E5E7EB;
+  background-color: #111827;
+}
+.prose table tr:last-child td {
+  border-bottom: none;
+}
+.prose hr {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+}
+.dark .prose hr {
+  border-top-color: #4B5563;
+}
+.table-of-contents {
+  background-color: #FFFFFF;
+  border-radius: 0.75em;
+  padding: 1.5em;
+  border: 1px solid #D1D5DB;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+.dark .table-of-contents {
+  background-color: #1F2937;
+  border-color: #374151;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+}
+.table-of-contents h3 {
+  margin-top: 0;
+  margin-bottom: 1em;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1F2937;
+  padding-bottom: 0.75em;
+  border-bottom: 2px solid #D1D5DB;
+}
+.dark .table-of-contents h3 {
+  color: #F3F4F6;
+  border-bottom-color: #374151;
+}
+.table-of-contents ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+.table-of-contents li {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+  padding-left: 0.75em;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+.table-of-contents li:hover {
+  border-left-color: #02569B;
+  padding-left: 1em;
+}
+.dark .table-of-contents li:hover {
+  border-left-color: #13B9FD;
+}
+.table-of-contents a {
+  text-decoration: none;
+  color: #374151;
+  font-size: 0.875rem;
+  display: block;
+  transition: color 0.2s ease;
+}
+.dark .table-of-contents a {
+  color: #D1D5DB;
+}
+.table-of-contents a:hover {
+  color: #02569B;
+  text-decoration: none;
+}
+.dark .table-of-contents a:hover {
+  color: #13B9FD;
+}
+.sticky-toc {
+  position: sticky;
+  top: 2rem;
+}
+.sticky-toc > div {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #D1D5DB !important;
+}
+.dark .sticky-toc > div {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+  border-color: #374151 !important;
+}
+.sticky-toc ul li {
+  padding-left: 0.75em;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.sticky-toc ul li:hover {
+  border-left-color: #02569B;
+  padding-left: 1em;
+}
+.dark .sticky-toc ul li:hover {
+  border-left-color: #13B9FD;
+}
+
+/* Hide Table of Contents on Mobile */
+@media (max-width: 1023px) {
+  .sticky-toc {
+    display: none !important;
+  }
+  .lg\:w-1\/4 {
+    display: none !important;
+  }
+  .lg\:w-3\/4 {
+    width: 100% !important;
+  }
+}
+
+/* Footer Section */
+.footer-section {
+  background: linear-gradient(180deg, #020617 0%, #0F172A 100%);
+  padding: 4rem 0 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.footer-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #02569B, #13B9FD, transparent);
+  opacity: 0.5;
+}
+.footer-brand {
+  display: inline-flex;
+  flex-direction: column;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+.footer-brand:hover {
+  transform: translateY(-2px);
+}
+.footer-description {
+  color: #9ca3af;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  max-width: 450px;
+  margin-top: 1rem;
+}
+.footer-social-link {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.875rem;
+  color: #9ca3af;
+  font-size: 1.25rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.footer-social-link:hover {
+  background: linear-gradient(120deg, #02569B, #13B9FD);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 8px 24px rgba(2, 86, 155, 0.5);
+}
+.footer-social-link img {
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+  filter: brightness(0.8);
+  transition: filter 0.3s ease;
+}
+.footer-social-link:hover img {
+  filter: brightness(1);
+}
+/* Upwork logo - make it white in footer */
+.footer-social-link img[src="upwork-icon.png"] {
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+.footer-social-link:hover img[src="upwork-icon.png"] {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+.dark .footer-social-link img[src="upwork-icon.png"] {
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+.dark .footer-social-link:hover img[src="upwork-icon.png"] {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+/* Tooltip styles for social links */
+.footer-social-link {
+  position: relative;
+}
+.footer-social-link::after {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  padding: 0.5rem 0.75rem;
+  background: rgba(15, 23, 42, 0.95);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.footer-social-link::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-2px);
+  border: 5px solid transparent;
+  border-top-color: rgba(15, 23, 42, 0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1001;
+}
+.footer-social-link:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-12px);
+}
+.footer-social-link:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+.dark .footer-social-link::after {
+  background: rgba(255, 255, 255, 0.95);
+  color: #111827;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.dark .footer-social-link::before {
+  border-top-color: rgba(255, 255, 255, 0.95);
+}
+.footer-heading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.025em;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+.footer-heading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #02569B, #13B9FD);
+  border-radius: 2px;
+}
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.footer-link {
+  color: #9ca3af;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-block;
+  position: relative;
+  padding-left: 0;
+  padding: 0.25rem 0;
+}
+.footer-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #02569B, #13B9FD);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+.footer-link:hover {
+  color: #ffffff;
+  padding-left: 0.75rem;
+  transform: translateX(4px);
+}
+.footer-link:hover::before {
+  width: 0.5rem;
+}
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 2.5rem;
+  margin-top: 3rem;
+  position: relative;
+}
+.footer-bottom::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #02569B, #13B9FD, transparent);
+  opacity: 0.5;
+}
+.footer-bottom-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.footer-copyright {
+  color: #9ca3af;
+  font-size: 0.9375rem;
+  margin: 0;
+  letter-spacing: 0.025em;
+  position: relative;
+  padding: 1rem 0;
+}
+.footer-copyright::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #02569B, #13B9FD, transparent);
+  opacity: 0.6;
+}
+@media (max-width: 768px) {
+  .footer-section {
+    padding: 2.5rem 0 1.5rem;
+  }
+  .footer-description {
+    font-size: 0.875rem;
+  }
+  .footer-social-link {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+  .footer-heading {
+    font-size: 0.9375rem;
+    margin-bottom: 1rem;
+  }
+  .footer-link {
+    font-size: 0.875rem;
+  }
+}
+</style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-300">
+<main class="container mx-auto px-6 py-12">
+  <div class="flex flex-col lg:flex-row gap-12">
+    <div class="lg:w-3/4">
+      <div class="mb-8">
+        <a href="index.html#blog" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-secondary mb-6 transition-colors">
+          <i class="ri-arrow-left-line mr-2"></i>
+          <span>Back</span>
+        </a>
+        <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full">Flutter</span>
+          <span class="flex items-center">
+            <i class="ri-time-line mr-1"></i>
+            5 min read
+          </span>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold font-poppins mb-6 dark:text-gray-100">Creating Stunning UI Animations in Flutter</h1>
+        <div class="flex items-center space-x-4 mb-8">
+          <img src="profile.jpg" alt="Zohaib Hassan" class="w-12 h-12 rounded-full object-cover object-top">
+          <div>
+            <p class="font-medium dark:text-gray-100">Zohaib Hassan</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Flutter Developer</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="rounded-lg overflow-hidden mb-10">
+        <img src="/Users/mac/Desktop/portfolio website/UI_animations.png" alt="Flutter UI Animations" class="w-full h-auto object-cover object-top">
+      </div>
+      
+      <article class="prose mx-auto">
+        <p>Creating stunning UI animations in Flutter not only improves user engagement but also adds a layer of professionalism and polish to your application. In this in-depth guide, we’ll explore how to use Flutter’s powerful animation framework to build visually compelling interfaces. From basic motion effects to advanced animated transitions, you’ll learn practical techniques to make your app stand out in the crowded marketplace.</p>
+        
+        <h2 id="understanding-state">Understanding Animations in Flutter Applications</h2>
+        <p>Before diving into advanced animation techniques, it’s important to understand what animations mean in the context of Flutter development. In simple terms, animations in Flutter are visual transitions or motion effects that respond to user interactions or state changes within your app. These can include:</p>
+        <ul>
+          <li>Button and icon transitions</li>
+          <li>Page and screen navigation animations</li>
+          <li>Loading indicators and progress bars</li>
+          <li>Animated containers and layout shifts</li>
+          <li>Gesture-driven animations (e.g., swipes, drags)</li>
+        </ul>
+        
+        <p>Flutter provides a powerful and flexible animation framework, offering everything from implicit animations like AnimatedContainer to explicit animations using AnimationController and Tween. Choosing the right animation technique depends on your app’s design goals, user experience expectations, and performance needs.</p>
+        
+        <h2 id="bloc-pattern">Flutter Animation Basics: Reactive and Dynamic UI</h2>
+        <p>Creating dynamic and reactive UI animations in Flutter involves more than just adding motion—it’s about structuring your animations in a way that responds seamlessly to user interactions and app state changes. Flutter’s animation system is built to support this kind of responsiveness using controllers, tweens, and animated widgets.</p>
+        
+        <h3>Key Concepts in Flutter Animations</h3>
+        <ul>
+          <li><strong>Animations: </strong>Visual changes triggered by user input or system events</li>
+          <li><strong>AnimationController: </strong> Controls the animation's duration and progression</li>
+          <li><strong>Tween: </strong> Defines the range of values for an animation</li>
+          <li><strong>Animated Widgets: </strong> Widgets like AnimatedContainer, AnimatedOpacity, or AnimatedPositioned that react to state changes</li>
+          <li><strong>Curves: </strong> Control the timing and feel of an animation (e.g., bounce, ease-in)</li>
+
+        </ul>
+        
+        <p>A typical Flutter animation workflow follows a reactive model:</p>
+        <ol>
+          <li>User interaction or app logic triggers animation</li>
+          <li>AnimationController drives the change</li>
+          <li>Tween maps values over time</li>
+          <li>UI widgets rebuild with animated transitionss</li>
+        </ol>
+        <p>By adopting this reactive animation structure, you can build fluid and engaging Flutter UIs that feel intuitive and alive.</p>
+        
+        <h3>Implementing a Simple Animation in Flutter</h3>
+        <p>Let’s look at how you can implement a basic animation in Flutter using AnimationController and Tween. Instead of just incrementing a counter with state management, we’ll animate the value change to create a visually smooth and engaging user experience.</p>
+        <h1><strong>Animated Counter Example in Flutter:</strong></h1>
+        <pre><code>class AnimatedCounter extends StatefulWidget {
+            @override
+            _AnimatedCounterState createState() => _AnimatedCounterState();
+          }
+          
+          class _AnimatedCounterState extends State<AnimatedCounter>
+              with SingleTickerProviderStateMixin {
+            late AnimationController _controller;
+            late Animation<int> _animation;
+            int _counter = 0;
+          
+            @override
+            void initState() {
+              super.initState();
+              _controller = AnimationController(
+                vsync: this,
+                duration: Duration(milliseconds: 300),
+              );
+              _animation = IntTween(begin: _counter, end: _counter).animate(_controller);
+            }
+          
+            void _incrementCounter() {
+              setState(() {
+                _counter++;
+                _animation = IntTween(begin: _animation.value, end: _counter)
+                    .animate(_controller);
+                _controller.forward(from: 0);
+              });
+            }
+          
+            @override
+            void dispose() {
+              _controller.dispose();
+              super.dispose();
+            }
+          
+            @override
+            Widget build(BuildContext context) {
+              return Column(
+                children: [
+                  AnimatedBuilder(
+                    animation: _animation,
+                    builder: (context, child) {
+                      return Text(
+                        'Count: ${_animation.value}',
+                        style: TextStyle(fontSize: 32),
+                      );
+                    },
+                  ),
+                  ElevatedButton(
+                    onPressed: _incrementCounter,
+                    child: Text("Increment"),
+                  )
+                ],
+              );
+            }
+          }
+          </code></pre>
+
+          <h3>Why This Matters</h3>
+          <p>With this example, you're not just updating UI state—you’re making it interactive and visually engaging, a key goal in building modern mobile interfaces. By using AnimationController, Tween, and AnimatedBuilder, you gain full control over the animation process, leading to stunning UI animations in Flutter that boost both performance and user satisfaction.</p>
+        
+        <h3>Advantages of Using Flutter's Animation Framework</h3>
+        <p>Flutter's built-in animation system offers several powerful advantages that help developers create stunning, fluid, and responsive UI animations with ease:</p>
+        <ul>
+          <li>Clear Separation of Animation Logic and UI</li>
+          <li>Highly Customizable Motion Effects</li>
+          <li>Smooth and Reactive User Experience</li>
+          <li>Ideal for Complex Interfaces</li>
+        </ul>
+        
+        <h2 id="provider">Provider: Simplified State Handling for Animated Flutter UIs</h2>
+        <p>Provider is a lightweight and powerful state management solution in Flutter that integrates seamlessly with the widget tree. It can be effectively used to control animated UI elements by managing animation-related state such as visibility, toggles, and transitions.</p>
+        
+        <h3>Key Concepts in Provider for UI Animations</h3>
+        <ul>
+          <li><strong>ChangeNotifier:</strong> Notifies listeners when animation-related state changes</li>
+          <li><strong>ChangeNotifierProvider:</strong> Supplies the animation controller/state to widgets</li>
+          <li><strong>Consumer:</strong> Rebuilds animated widgets when state updates</li>
+        </ul>
+        
+        <h3>Implementing Flutter Animation with Providerr</h3>
+        <p>Below is an example that uses Provider to manage the visibility of a widget with a fade-in/out animation:</p>
+        
+        <pre><code>// Animation State Model
+            class AnimationModel extends ChangeNotifier {
+              bool _visible = true;
+              bool get isVisible => _visible;
+            
+              void toggleVisibility() {
+                _visible = !_visible;
+                notifyListeners();
+              }
+            }
+            
+            // Widget Tree
+            ChangeNotifierProvider(
+              create: (_) => AnimationModel(),
+              child: Consumer<AnimationModel>(
+                builder: (context, model, child) {
+                  return Column(
+                    children: [
+                      AnimatedOpacity(
+                        opacity: model.isVisible ? 1.0 : 0.0,
+                        duration: Duration(milliseconds: 500),
+                        child: Container(
+                          width: 200,
+                          height: 100,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => model.toggleVisibility(),
+                        child: Text('Toggle Animation'),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            )
+            </code></pre>
+        
+        <h3>Advantages of Using Provider for Flutter Animations</h3>
+        <ul>
+          <li>Minimal Boilerplate</li>
+          <li>LSeamless Widget Integration</li>
+          <li>Perfect for Interactive UI States</li>
+          <li> Ideal for Small to Medium Projects</li>
+        </ul>
+        
+        <h2 id="riverpod">Riverpod: Modern State Control for Flutter UI Animations</h2>
+        <p>Riverpod is a powerful state management solution built as an evolution of Provider. With compile-time safety, enhanced performance, and flexibility, Riverpod is an ideal choice for managing complex Flutter UI animations and responsive interfaces."</p>
+        
+        <h3>Key Riverpod Concepts for Animation Management</h3>
+        <ul>
+          <li><strong>Provider:</strong> A stateless container for animation-related values</li>
+          <li><strong>ConsumerWidget:</strong>Rebuilds animated UI elements by watching provider states</li>
+          <li><strong>StateNotifier:</strong> Manages dynamic animation state transitions</li>
+        </ul>
+        
+        <h3>Implementing Flutter UI Animations Using Riverpod</h3>
+        <p>Let’s explore how Riverpod can be used to animate UI elements such as opacity or movement.</p>
+        
+        <pre><code>// Animation State Model
+            class AnimationState {
+              final bool isVisible;
+              AnimationState(this.isVisible);
+            }
+            
+            // Animation State Notifier
+            class AnimationNotifier extends StateNotifier<AnimationState> {
+              AnimationNotifier() : super(AnimationState(true));
+            
+              void toggleVisibility() {
+                state = AnimationState(!state.isVisible);
+              }
+            }
+            
+            // Provider Definition
+            final animationProvider = StateNotifierProvider<AnimationNotifier, AnimationState>(
+              (ref) => AnimationNotifier(),
+            );
+            
+            // Consumer Widget Example
+            class AnimatedBox extends ConsumerWidget {
+              @override
+              Widget build(BuildContext context, WidgetRef ref) {
+                final animationState = ref.watch(animationProvider);
+            
+                return Column(
+                  children: [
+                    AnimatedOpacity(
+                      opacity: animationState.isVisible ? 1.0 : 0.0,
+                      duration: Duration(milliseconds: 600),
+                      child: Container(
+                        width: 200,
+                        height: 100,
+                        color: Colors.deepPurple,
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => ref.read(animationProvider.notifier).toggleVisibility(),
+                      child: Text('Toggle Animation'),
+                    ),
+                  ],
+                );
+              }
+            }
+            </code></pre>
+        
+        <h3>Advantages of Using Riverpod for Flutter UI Animations</h3>
+        <ul>
+          <li> Type-Safe & Error-Free Animations</li>
+          <li>No BuildContext Required</li>
+          <li>Advanced Support for Async Animations</li>
+          <li>Test-Friendly Animated Interfaces</li>
+        </ul>
+        
+        <h2 id="comparison">Comparing Flutter Animation Techniques</h2>
+<p>Each Flutter animation technique offers unique strengths for creating engaging and visually appealing UI experiences:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>Implicit Animations</th>
+      <th>AnimatedBuilder</th>
+      <th>Rive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Ease of Use</td>
+      <td>Very Easy</td>
+      <td>Moderate</td>
+      <td>Moderate</td>
+    </tr>
+    <tr>
+      <td>Customization</td>
+      <td>Limited</td>
+      <td>High</td>
+      <td>Very High</td>
+    </tr>
+    <tr>
+      <td>Performance</td>
+      <td>Good</td>
+      <td>Excellent</td>
+      <td>Excellent</td>
+    </tr>
+    <tr>
+      <td>Best For</td>
+      <td>Simple UI Transitions</td>
+      <td>Fine-Grained Control</td>
+      <td>Complex Vector Animations</td>
+    </tr>
+    <tr>
+      <td>Learning Curve</td>
+      <td>Gentle</td>
+      <td>Moderate</td>
+      <td>Steep</td>
+    </tr>
+    <tr>
+      <td>Integration Effort</td>
+      <td>Low</td>
+      <td>Medium</td>
+      <td>Requires External Tool</td>
+    </tr>
+  </tbody>
+</table>
+
+        
+<h2 id="best-practices">Best Practices for Creating Stunning UI Animations in Flutter</h2>
+<p>Creating smooth and engaging animations can elevate the user experience of your Flutter app. Follow these best practices to craft stunning UI animations:</p>
+
+<h3>1. Start Simple, Scale Gradually</h3>
+<p>Begin with basic animations using built-in widgets like <code>AnimatedContainer</code> and <code>AnimatedOpacity</code>. Once comfortable, progress to more complex animations with <code>AnimationController</code> and <code>Tween</code>.</p>
+
+<h3>2. Use Implicit and Explicit Animations Appropriately</h3>
+<p>Use implicit animations for simple transitions, such as fading or resizing. For more control over timing, curves, and sequences, use explicit animations to fine-tune user interactions.</p>
+
+<h3>3. Optimize Performance</h3>
+<p>Avoid excessive rebuilds and unnecessary repaints. Wrap animated widgets in <code>RepaintBoundary</code> when needed, and always test animations on real devices to check for dropped frames.</p>
+
+<h3>4. Follow Material Design Guidelines</h3>
+<p>Adhere to Flutter's Material motion system for a cohesive experience. Use widgets like <code>Hero</code> for page transitions and <code>AnimatedSwitcher</code> for replacing UI elements elegantly.</p>
+
+<h3>5. Leverage Animation Libraries</h3>
+<p>Use powerful animation libraries like <code>flutter_animate</code>, <code>rive</code>, or <code>lottie</code> for advanced and visually rich animations. These tools help you implement complex designs with less code.</p>
+
+<h2 id="conclusion">Conclusion: Mastering UI Animations in Flutter</h2>
+<p>Animations are a vital aspect of modern UI design, enhancing usability and making apps feel fluid and responsive. Flutter provides a rich set of tools and widgets to create everything from simple transitions to complex motion effects.</p>
+
+<p>By following best practices—starting simple, optimizing performance, and using the right animation tools—you can craft visually compelling and user-friendly Flutter applications. Whether you're animating buttons or building cinematic transitions, Flutter makes it possible to deliver a delightful user experience.</p>
+
+<p>Keep experimenting, explore animation packages, and stay updated with Flutter's latest animation APIs. Stunning UI animations aren't just about movement—they're about meaningful, intuitive interaction.</p>
+
+      </article>
+      
+      
+
+      
+      <div class="border-t border-gray-200 my-12 pt-12">
+        <h3 class="text-2xl font-bold mb-6 dark:text-gray-100">Related Articles</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <article class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg card-hover">
+                <div class="relative overflow-hidden h-48">
+                <img src="https://readdy.ai/api/search-image?query=flutter%20app%20development%20code%20on%20computer%20screen%2C%20showing%20dart%20code%20and%20UI%20elements%2C%20professional%20software%20development%20environment%2C%20clean%20modern%20workspace&width=600&height=400&seq=9&orientation=landscape" alt="Flutter State Management" class="w-full h-full object-cover object-top transition-transform duration-300 hover:scale-105">
+                <div class="absolute top-4 left-4 bg-primary text-white text-sm px-3 py-1 rounded-full">Flutter</div>
+                </div>
+                <div class="p-6">
+                <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
+                <span class="flex items-center">
+                <i class="ri-time-line mr-1"></i>
+                5 min read
+                </span>
+                </div>
+                <h3 class="text-xl font-bold mb-3 dark:text-gray-100">Advanced State Management Techniques in Flutter</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">A comprehensive guide to implementing efficient state management solutions in Flutter applications using Bloc, Provider, and Riverpod.</p>
+                <a href="Blog-Post-Detail-Page.html" class="inline-flex items-center text-primary dark:text-secondary font-medium">
+                <span>Read More</span>
+                <i class="ri-arrow-right-line ml-1"></i>
+                </a>
+                </div>
+                </article>
+          
+          <article class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div class="relative overflow-hidden h-48">
+              <img src="https://readdy.ai/api/search-image?query=mobile%2520app%2520performance%2520optimization%252C%2520showing%2520profiling%2520tools%252C%2520performance%2520metrics%252C%2520and%2520debugging%2520process%252C%2520professional%2520development%2520environment&width=600&height=400&seq=20&orientation=landscape" alt="Flutter Performance" class="w-full h-full object-cover object-top transition-transform duration-300 hover:scale-105">
+              <div class="absolute top-4 left-4 bg-green-500 text-white text-sm px-3 py-1 rounded-full">Performance</div>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
+                <span class="flex items-center">
+                  <i class="ri-time-line mr-1"></i>
+                  6 min read
+                </span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 dark:text-gray-100">Optimizing Flutter App Performance</h3>
+              <p class="text-gray-600 dark:text-gray-300 mb-4">Practical techniques for identifying and resolving performance bottlenecks in Flutter applications to ensure smooth user experiences.</p>
+              <a href="#" class="inline-flex items-center text-primary dark:text-secondary font-medium">
+                <span>Read More</span>
+                <i class="ri-arrow-right-line ml-1"></i>
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div class="lg:w-1/4">
+      <div class="sticky-toc">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 mb-8" style="box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);">
+          <h3 class="text-lg font-bold mb-4 dark:text-gray-100 pb-3 border-b-2 border-gray-300 dark:border-gray-700">Table of Contents</h3>
+          <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+            <li><a href="#understanding-state" class="hover:text-primary dark:hover:text-secondary transition-colors">Understanding Animations in Flutter</a></li>
+            <li><a href="#bloc-pattern" class="hover:text-primary dark:hover:text-secondary transition-colors">Animation: Reactive and Dynamic UI</a></li>
+            <li><a href="#provider" class="hover:text-primary dark:hover:text-secondary transition-colors">Provider</a></li>
+            <li><a href="#riverpod" class="hover:text-primary dark:hover:text-secondary transition-colors">Riverpod</a></li>
+            <li><a href="#comparison" class="hover:text-primary dark:hover:text-secondary transition-colors">Comparing Flutter Animation Techniques</a></li>
+            <li><a href="#best-practices" class="hover:text-primary dark:hover:text-secondary transition-colors">Best Practices</a></li>
+            <li><a href="#conclusion" class="hover:text-primary dark:hover:text-secondary transition-colors">Conclusion</a></li>
+          </ul>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 mb-8" style="box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);">
+            <h3 class="text-lg font-bold mb-4 dark:text-gray-100">Tags</h3>
+            <div class="flex flex-wrap gap-2">
+              <a href="#" class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">Flutter</a>
+              <a href="#" class="px-3 py-1 bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300 text-sm rounded-full hover:bg-pink-200 dark:hover:bg-pink-900/50 transition-colors">UI Animation</a>
+              <a href="#" class="px-3 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 text-sm rounded-full hover:bg-teal-200 dark:hover:bg-teal-900/50 transition-colors">Implicit Animations</a>
+              <a href="#" class="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 text-sm rounded-full hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors">Explicit Animations</a>
+              <a href="#" class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-sm rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors">AnimationController</a>
+              <a href="#" class="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-sm rounded-full hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors">Custom Transitions</a>
+              <a href="#" class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 text-sm rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors">Mobile UI</a>
+              <a href="#" class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 text-sm rounded-full hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors">Flutter Tips</a>
+            </div>
+          </div>
+          
+        
+        
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer-section">
+<div class="container mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 mb-12">
+<div class="lg:col-span-2">
+<a href="index.html#home" class="footer-brand">
+<div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white shadow-lg shadow-primary/40 mb-4 transform transition-transform hover:scale-105">
+<i class="ri-flutter-fill text-xl"></i>
+</div>
+<div class="flex flex-col leading-tight mb-4">
+<span class="font-poppins text-xl font-semibold tracking-wide text-white uppercase">Zohaib Hassan</span>
+<span class="text-xs font-medium uppercase tracking-[0.18em] text-gray-400 mt-1">Flutter Developer</span>
+</div>
+</a>
+<p class="footer-description text-base">Expert Flutter developer creating beautiful, high-performance mobile applications that deliver exceptional user experiences.</p>
+<div class="flex space-x-4 mt-8">
+<a href="https://www.linkedin.com/in/zohaib-hassan-916428310/" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="LinkedIn - Connect with me on LinkedIn" title="LinkedIn - Connect with me on LinkedIn">
+<i class="ri-linkedin-fill"></i>
+</a>
+<a href="https://www.upwork.com/freelancers/~012e88f2131ae95e90?" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Upwork - Hire me on Upwork" title="Upwork - Hire me on Upwork">
+<img src="upwork-icon.png" alt="Upwork" />
+</a>
+<a href="https://github.com/ZohaibHassan90" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="GitHub - View my code repositories" title="GitHub - View my code repositories">
+<i class="ri-github-fill"></i>
+</a>
+<a href="https://www.instagram.com/_.zohaib_hassan?" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Instagram - Follow me on Instagram" title="Instagram - Follow me on Instagram">
+<i class="ri-instagram-fill"></i>
+</a>
+</div>
+</div>
+<div>
+<h3 class="footer-heading">Quick Links</h3>
+<ul class="footer-links">
+<li><a href="index.html#home" class="footer-link">Home</a></li>
+<li><a href="index.html#about" class="footer-link">About</a></li>
+<li><a href="index.html#projects" class="footer-link">Projects</a></li>
+<li><a href="index.html#skills" class="footer-link">Skills</a></li>
+<li><a href="index.html#experience" class="footer-link">Experience</a></li>
+<li><a href="index.html#blog" class="footer-link">Blog</a></li>
+<li><a href="index.html#contact" class="footer-link">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">
+<div class="footer-bottom-content">
+<p class="footer-copyright">© 2025 Zohaib Hassan. All rights reserved.</p>
+</div>
+</div>
+</div>
+</footer>
+
+
+<script id="sticky-header-script">
+document.addEventListener('DOMContentLoaded', function() {
+  const header = document.querySelector('header');
+  const scrollThreshold = 100;
+  
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > scrollThreshold) {
+      header.classList.add('shadow');
+    } else {
+      header.classList.remove('shadow');
+    }
+  });
+});
+</script>
+
+
+<script id="table-of-contents-script">
+document.addEventListener('DOMContentLoaded', function() {
+  const tocLinks = document.querySelectorAll('.sticky-toc a');
+  
+  tocLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      const targetElement = document.querySelector(targetId);
+      
+      window.scrollTo({
+        top: targetElement.offsetTop - 100,
+        behavior: 'smooth'
+      });
+    });
+  });
+  
+  // Highlight current section in TOC
+  const headings = document.querySelectorAll('h2, h3');
+  const tocItems = document.querySelectorAll('.sticky-toc a');
+  
+  window.addEventListener('scroll', function() {
+    let current = '';
+    
+    headings.forEach(heading => {
+      const sectionTop = heading.offsetTop - 120;
+      
+      if (window.scrollY >= sectionTop) {
+        current = heading.getAttribute('id');
+      }
+    });
+    
+    tocItems.forEach(item => {
+      item.classList.remove('text-primary', 'font-medium');
+      const href = item.getAttribute('href').substring(1);
+      
+      if (href === current) {
+        item.classList.add('text-primary', 'font-medium');
+      }
+    });
+  });
+});
+</script>
+<script id="theme-sync-script">
+// Sync theme with main portfolio page
+document.addEventListener('DOMContentLoaded', function() {
+  const html = document.documentElement;
+  const body = document.body;
+  
+  // Function to apply theme
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      html.classList.add('dark');
+      body.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+      body.classList.remove('dark');
+    }
+  }
+  
+  // Get theme from localStorage (set by main portfolio page)
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  // Apply initial theme
+  if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    applyTheme('dark');
+  } else {
+    applyTheme('light');
+  }
+  
+  // Listen for theme changes from other tabs/windows (if user changes theme on main page)
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'theme') {
+      applyTheme(e.newValue);
+    }
+  });
+  
+  // Also listen for custom storage event (for same-tab updates)
+  window.addEventListener('theme-changed', function(e) {
+    applyTheme(e.detail.theme);
+  });
+});
+</script>
+
+</body>
+</html>
